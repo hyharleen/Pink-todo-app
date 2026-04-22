@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>To-Do List</h1>
+    <br />
+    <form>
+      <div>
+        <input type="text" id="taskInput" placeholder="Add a new task..." />
+        <button type="submit" class="btn">Add Task</button>
+      </div>
+      <section class="todolistelem"></section>
+    </form>
+    <script>
+      const taskInput = document.getElementById("taskInput");
+      const addButton = document.querySelector(".btn");
+      const todoListElem = document.querySelector(".todolistelem");
+
+      const gettodolist = () => {
+        return JSON.parse(localStorage.getItem("todolist"));
+      };
+      const addTodoListLocalStorage = (localtodolist) => {
+        localStorage.setItem("todolist", JSON.stringify(localtodolist));
+      };
+
+      let localtodolist = gettodolist() || [];
+
+      const addtodoDynamicElement = (Currelem) => {
+        const divelement = document.createElement("div");
+        divelement.classList.add("todoitem");
+        divelement.innerHTML = `<li style= "display:inline">${Currelem}</li>
+      <button class="deletebtn">DELETE</button>`;
+        todoListElem.append(divelement);
+      };
+
+      const addtodolist = (e) => {
+        e.preventDefault();
+        const todolist = taskInput.value.trim();
+        taskInput.value = "";
+        if (todolist !== "" && !localtodolist.includes(todolist)) {
+          localtodolist.push(todolist);
+          localtodolist = [...new Set(localtodolist)];
+          console.log(localtodolist);
+          addTodoListLocalStorage(localtodolist);
+          addtodoDynamicElement(todolist);
+        }
+      };
+
+      const showtodolist = () => {
+        console.log(localtodolist);
+        localtodolist.forEach((Currelem) => {
+          addtodoDynamicElement(Currelem);
+        });
+      };
+      const removetodoelem = (e) => {
+        const todoToRemove = e.target;
+
+        if (!todoToRemove.classList.contains("deletebtn")) return;
+
+        let todolistcontent =
+          todoToRemove.previousElementSibling.textContent.trim();
+        localtodolist = localtodolist.filter(
+          (item) => item.trim() !== todolistcontent.trim(),
+        );
+
+        let parentelem = todoToRemove.parentElement;
+
+        addTodoListLocalStorage(localtodolist);
+        parentelem.remove();
+      };
+      console.log(localtodolist);
+      todoListElem.addEventListener("click", (e) => {
+        removetodoelem(e);
+      });
+
+      showtodolist();
+      document.querySelector("form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        addtodolist(e);
+      });
+    </script>
+  </body>
+</html>
